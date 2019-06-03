@@ -1,0 +1,138 @@
+---
+title: "LiveSession05"
+author: "Jeremy Otsap"
+date: "June 2, 2019"
+output: 
+  html_document:
+    keep_md: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+##loading Libraries
+library(dplyr)
+library(tidyverse)
+
+```
+
+## Question 1
+
+2016 Child names
+
+```{r echo=TRUE}
+# import yob2016 file
+y2016 <- read.table("data/yob2016.txt", header = F, sep = ";", col.names = c("FirstName","Gender","Occurances"))
+
+# dimensions & structure of dataframe
+str(y2016)
+dim(y2016)
+#preview
+y2016[1:10,]
+
+```
+
+
+Finding the problem entry with "yyy" at the end
+
+```{r echo=TRUE}
+
+# Locating problem entry with 'yyy'
+y2016[grep('yyy', y2016$FirstName),]
+
+```
+
+
+Remove duplicate row from data set
+
+```{r echo=TRUE}
+
+slice(y2016, -212) -> y2016
+y2016[205:215,]
+
+#sorting data frame by FirstName
+y2016[order(y2016$FirstName),] -> y2016
+
+
+```
+
+
+
+## Question 2
+
+For the last 10 child names of 2015 they all are male and all have a total of 5 occurances. Also looks like its already in alphabetical order?
+
+```{r echo=TRUE}
+
+# import yob2015 file
+y2015 <- read.table("data/yob2015.txt", header = F, sep = ",", col.names = c("FirstName","Gender","Occurances"))
+
+#last 10 rows
+tail(y2015, 10)
+
+#sorting 2015 data frame
+y2015[order(y2015$FirstName),] -> y2015
+
+```
+
+
+Merging 2015 and 2016 childname data frames
+
+```{r echo=TRUE}
+# using merge to emulate outer join
+# only names picked in 2015 AND 2016 will be in final dataset
+merge(y2015, y2016, by = c("FirstName","Gender")) -> final
+
+colnames(final) <- c("Name","Gender","Occurances2015","Occurances2016")
+
+```
+
+
+## Question 3
+
+Data summary of merged data sets showing most top 10 most popular names across 2015 and 2016
+
+```{r echo=TRUE}
+
+# create Total column
+final$Total <- final$Occurances2015 + final$Occurances2016
+
+# sorting by largest Total
+final[order(final$Total, decreasing = T),] -> finaltotal
+
+head(finaltotal, 10)
+
+```
+
+Top 10 girl names
+
+```{r echo=TRUE}
+
+# all girl names
+finaltotal[finaltotal$Gender == 'F',] -> finalgirl
+head(finalgirl[,c(1,5)],10)
+
+# Export to CSV
+finalgirl[,c(1,5)] -> finalgirlfile
+write.csv(finalgirlfile, file = "data/finalgirl.csv", col.names = T)
+
+
+```
+
+
+## Question 4
+
+####GitHub Address  
+####https://github.com/jotsap/DDS6306_Unit05
+
+
+
+
+
+
+
+
+
+
+
+
